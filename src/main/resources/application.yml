@@ -1,15 +1,16 @@
 # ============================================
-# 銀行 API 平台配置檔案
+# 銀行 API 平台配置檔案 - SQL Server 版本
 # ============================================
 
 spring:
   application:
     name: api-platform
   
-  # MySQL 資料庫配置
+  # SQL Server 2022 資料庫配置
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/api_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Taipei&allowPublicKeyRetrieval=true
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    # 主資料庫連線（生產環境使用）
+    url: jdbc:sqlserver://localhost:1433;databaseName=api_db;encrypt=true;trustServerCertificate=true;loginTimeout=30
     username: api_user
     password: Api@2024!
     
@@ -22,10 +23,17 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
       connection-test-query: SELECT 1
+      
+      # SQL Server 特定優化
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
   
   # JPA 配置
   jpa:
-    database-platform: org.hibernate.dialect.MySQLDialect
+    database-platform: org.hibernate.dialect.SQLServerDialect
     hibernate:
       ddl-auto: none  # 不自動建立資料表，由 SQL 腳本管理
       naming:
@@ -35,6 +43,12 @@ spring:
       hibernate:
         format_sql: true
         use_sql_comments: true
+        # SQL Server 特定配置
+        dialect: org.hibernate.dialect.SQLServer2012Dialect
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
     open-in-view: false
 
 # 伺服器配置
@@ -46,6 +60,11 @@ server:
       charset: UTF-8
       enabled: true
       force: true
+  # 生產環境安全配置
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-exception: false
 
 # Actuator 監控端點
 management:
@@ -56,7 +75,11 @@ management:
       base-path: /actuator
   endpoint:
     health:
-      show-details: always
+      show-details: when-authorized
+    metrics:
+    export:
+      prometheus:
+        enabled: true
 
 # Swagger API 文件
 springdoc:
@@ -77,5 +100,55 @@ logging:
     org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.microsoft.sqlserver: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/api-platform.log
+    max-size: 10MB
+    max-history: 30
+
+# ============================================
+# 多環境配置
+# ============================================
+---
+# 開發環境
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=api_db_dev;encrypt=true;trustServerCertificate=true
+  jpa:
+    show-sql: true
+
+---
+# 測試環境
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:sqlserver://test-db-server:1433;databaseName=api_db_test;encrypt=true;trustServerCertificate=false
+  jpa:
+    show-sql: false
+
+---
+# 生產環境
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    # 生產環境使用連線字串環境變數
+    url: ${DB_CONNECTION_STRING}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 50
+  jpa:
+    show-sql: false
+  logging:
+    level:
+      root: WARN
+      com.bank.apiplatform: INFO
