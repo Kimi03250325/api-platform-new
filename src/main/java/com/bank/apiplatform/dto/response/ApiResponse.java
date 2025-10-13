@@ -51,16 +51,30 @@ public class ApiResponse<T> {
     }
     
     /**
-     * 失敗回應
+     * 失敗回應（無資料）
      */
     public static <T> ApiResponse<T> error(int code, String message) {
         return new ApiResponse<>(code, message, null, LocalDateTime.now());
     }
     
     /**
-     * 失敗回應（預設 500）
+     * 失敗回應（預設 500，無資料）
      */
     public static <T> ApiResponse<T> error(String message) {
         return new ApiResponse<>(500, message, null, LocalDateTime.now());
+    }
+    
+    /**
+     * 失敗回應（帶資料） - 新增
+     */
+    public static <T> ApiResponse<T> error(int code, String message, T data) {
+        return new ApiResponse<>(code, message, data, LocalDateTime.now());
+    }
+    
+    /**
+     * 失敗回應（預設 500，帶資料） - 新增
+     */
+    public static <T> ApiResponse<T> error(String message, T data) {
+        return new ApiResponse<>(500, message, data, LocalDateTime.now());
     }
 }
