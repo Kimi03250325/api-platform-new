@@ -1,57 +1,66 @@
 # ============================================
-# 銀行 API 平台配置檔案 - SQL Server 版本
+# 銀行 API 平台配置檔案 (SQL Server 2022)
+# 測試環境版本
 # ============================================
 
 spring:
   application:
     name: api-platform
   
+  # ==========================================
   # SQL Server 2022 資料庫配置
+  # ==========================================
   datasource:
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    # 主資料庫連線（生產環境使用）
-    url: jdbc:sqlserver://localhost:1433;databaseName=api_db;encrypt=true;trustServerCertificate=true;loginTimeout=30
+    url: jdbc:sqlserver://localhost:1433;databaseName=api_db;trustServerCertificate=true;encrypt=true
     username: api_user
     password: Api@2024!
     
     # HikariCP 連線池配置
     hikari:
       pool-name: ApiHikariPool
-      maximum-pool-size: 20
-      minimum-idle: 5
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      connection-test-query: SELECT 1
+      maximum-pool-size: 20              # 最大連線數
+      minimum-idle: 5                    # 最小閒置連線數
+      connection-timeout: 30000          # 連線逾時 (30秒)
+      idle-timeout: 600000               # 閒置逾時 (10分鐘)
+      max-lifetime: 1800000              # 連線最大生命週期 (30分鐘)
+      connection-test-query: SELECT 1    # 連線測試查詢
+      auto-commit: true
+      leak-detection-threshold: 60000    # 連線洩漏偵測 (60秒)
       
-      # SQL Server 特定優化
+      # SQL Server 專屬設定
       data-source-properties:
-        cachePrepStmts: true
-        prepStmtCacheSize: 250
-        prepStmtCacheSqlLimit: 2048
-        useServerPrepStmts: true
+        applicationIntent: ReadWrite
+        trustServerCertificate: true
+        loginTimeout: 30
   
-  # JPA 配置
+  # ==========================================
+  # JPA / Hibernate 配置
+  # ==========================================
   jpa:
     database-platform: org.hibernate.dialect.SQLServerDialect
     hibernate:
-      ddl-auto: none  # 不自動建立資料表，由 SQL 腳本管理
+      ddl-auto: none                     # 不自動建立資料表,由 SQL 腳本管理
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-    show-sql: true
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+    show-sql: true                       # 顯示 SQL (測試環境)
     properties:
       hibernate:
-        format_sql: true
-        use_sql_comments: true
-        # SQL Server 特定配置
-        dialect: org.hibernate.dialect.SQLServer2012Dialect
+        format_sql: true                 # 格式化 SQL
+        use_sql_comments: true           # 顯示 SQL 註解
         jdbc:
-          batch_size: 20
+          batch_size: 20                 # 批次處理大小
+          fetch_size: 50                 # 預取大小
         order_inserts: true
         order_updates: true
-    open-in-view: false
+        temp:
+          use_jdbc_metadata_defaults: false
+    open-in-view: false                  # 關閉 OSIV
 
+# ==========================================
 # 伺服器配置
+# ==========================================
 server:
   port: 8080
   servlet:
@@ -60,95 +69,115 @@ server:
       charset: UTF-8
       enabled: true
       force: true
-  # 生產環境安全配置
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
   error:
-    include-message: never
-    include-stacktrace: never
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
     include-exception: false
 
-# Actuator 監控端點
+# ==========================================
+# Actuator 健康檢查配置
+# ==========================================
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics
       base-path: /actuator
   endpoint:
     health:
-      show-details: when-authorized
-    metrics:
-    export:
-      prometheus:
+      show-details: always               # 總是顯示詳細資訊
+      probes:
         enabled: true
+  health:
+    db:
+      enabled: true                      # 啟用資料庫健康檢查
+    diskspace:
+      enabled: true
+      threshold: 10MB
 
-# Swagger API 文件
+# ==========================================
+# Swagger / OpenAPI 文件配置
+# ==========================================
 springdoc:
   api-docs:
     enabled: true
     path: /v3/api-docs
   swagger-ui:
     enabled: true
-    path: /swagger-ui.html
-  default-produces-media-type: application/json
-  default-consumes-media-type: application/json
+    path: /swagger-ui/index.html
+    operations-sorter: alpha             # 按字母排序 API
+    tags-sorter: alpha                   # 按字母排序標籤
+    doc-expansion: list                  # 預設展開列表
+    default-model-expand-depth: 3
+    default-models-expand-depth: 3
+    display-request-duration: true       # 顯示請求時間
+    filter: false
+    show-extensions: true
+    show-common-extensions: true
+    default-produces-media-type: application/json
+    default-consumes-media-type: application/json
+  show-actuator: false
+  paths-to-match: /api/**
+  packages-to-scan: com.bank.apiplatform.controller
 
+# ==========================================
 # 日誌配置
+# ==========================================
 logging:
   level:
     root: INFO
-    com.bank.apiplatform: DEBUG
+    com.bank.apiplatform: DEBUG          # 應用程式日誌
     org.springframework.web: INFO
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    com.microsoft.sqlserver: INFO
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG             # SQL 語句
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE  # SQL 參數
+    com.zaxxer.hikari: INFO              # 連線池日誌
+    com.microsoft.sqlserver: WARN        # SQL Server Driver
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
   file:
     name: logs/api-platform.log
     max-size: 10MB
-    max-history: 30
+    max-history: 7                       # 保留 7 天
+    total-size-cap: 100MB
 
-# ============================================
-# 多環境配置
-# ============================================
----
-# 開發環境
-spring:
-  config:
-    activate:
-      on-profile: dev
-  datasource:
-    url: jdbc:sqlserver://localhost:1433;databaseName=api_db_dev;encrypt=true;trustServerCertificate=true
-  jpa:
-    show-sql: true
-
----
-# 測試環境
-spring:
-  config:
-    activate:
-      on-profile: test
-  datasource:
-    url: jdbc:sqlserver://test-db-server:1433;databaseName=api_db_test;encrypt=true;trustServerCertificate=false
-  jpa:
-    show-sql: false
-
----
-# 生產環境
-spring:
-  config:
-    activate:
-      on-profile: prod
-  datasource:
-    # 生產環境使用連線字串環境變數
-    url: ${DB_CONNECTION_STRING}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-    hikari:
-      maximum-pool-size: 50
-  jpa:
-    show-sql: false
-  logging:
-    level:
-      root: WARN
-      com.bank.apiplatform: INFO
+# ==========================================
+# 應用程式自訂配置
+# ==========================================
+app:
+  # API 版本
+  version: 1.0.0
+  
+  # CORS 配置
+  cors:
+    allowed-origins: 
+      - http://localhost:3000
+      - http://localhost:8080
+      - http://127.0.0.1:8080
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+    allowed-headers: "*"
+    allow-credentials: true
+    max-age: 3600
+  
+  # API Key 配置
+  api-key:
+    header-name: X-API-Key
+    required: false                      # 測試環境先關閉 API Key 驗證
+    rate-limit-default: 1000
+  
+  # 動態查詢配置
+  dynamic-query:
+    max-results: 10000                   # 單次查詢最大結果數
+    default-page-size: 20                # 預設分頁大小
+    max-page-size: 1000                  # 最大分頁大小
+    cache-enabled: false                 # 測試環境關閉快取
+    cache-ttl: 300
