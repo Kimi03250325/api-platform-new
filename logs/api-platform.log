@@ -292,3 +292,7 @@ org.springframework.web.servlet.resource.NoResourceFoundException: No static res
 
 2025-10-14T09:40:55.380+08:00  WARN 2208 --- [api-platform] [http-nio-8080-exec-2] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource favicon.ico.]
 2025-10-14T09:41:05.241+08:00  INFO 2208 --- [api-platform] [http-nio-8080-exec-1] o.springdoc.api.AbstractOpenApiResource  : Init duration for springdoc-openapi is: 716 ms
+2025-10-14T09:56:05.921+08:00  INFO 2208 --- [api-platform] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 11 class path changes (0 additions, 8 deletions, 3 modifications)
+2025-10-14T09:56:05.928+08:00  INFO 2208 --- [api-platform] [Thread-5] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-10-14T09:56:06.094+08:00  INFO 2208 --- [api-platform] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-10-14T09:56:06.102+08:00  INFO 2208 --- [api-platform] [Thread-5] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
