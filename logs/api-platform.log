@@ -2686,3 +2686,38 @@ Caused by: com.microsoft.sqlserver.jdbc.SQLServerException: 無效的資料行�
 2025-10-14T15:51:12.828+08:00  INFO 28424 --- [api-platform] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
 2025-10-14T15:51:12.834+08:00  INFO 28424 --- [api-platform] [restartedMain] c.b.apiplatform.ApiPlatformApplication   : Started ApiPlatformApplication in 1.247 seconds (process running for 802.34)
 2025-10-14T15:51:12.837+08:00  INFO 28424 --- [api-platform] [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2025-10-14T16:01:34.742+08:00  INFO 26524 --- [api-platform] [restartedMain] c.b.apiplatform.ApiPlatformApplication   : Starting ApiPlatformApplication using Java 17.0.16 with PID 26524 (D:\AIProject實作\APIPlatform\api-platform\target\classes started by Achilles in D:\AIProject實作\APIPlatform\api-platform)
+2025-10-14T16:01:34.745+08:00 DEBUG 26524 --- [api-platform] [restartedMain] c.b.apiplatform.ApiPlatformApplication   : Running with Spring Boot v3.5.6, Spring v6.2.11
+2025-10-14T16:01:34.746+08:00  INFO 26524 --- [api-platform] [restartedMain] c.b.apiplatform.ApiPlatformApplication   : No active profile set, falling back to 1 default profile: "default"
+2025-10-14T16:01:34.817+08:00  INFO 26524 --- [api-platform] [restartedMain] o.s.b.devtools.restart.ChangeableUrls    : The Class-Path manifest attribute in C:\Users\Achilles\.m2\repository\com\oracle\database\jdbc\ojdbc11\21.9.0.0\ojdbc11-21.9.0.0.jar referenced one or more files that do not exist: file:/C:/Users/Achilles/.m2/repository/com/oracle/database/jdbc/ojdbc11/21.9.0.0/oraclepki.jar
+2025-10-14T16:01:34.817+08:00  INFO 26524 --- [api-platform] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-10-14T16:01:34.817+08:00  INFO 26524 --- [api-platform] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-10-14T16:01:36.575+08:00  INFO 26524 --- [api-platform] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-10-14T16:01:36.687+08:00  INFO 26524 --- [api-platform] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 98 ms. Found 6 JPA repository interfaces.
+2025-10-14T16:01:38.068+08:00  INFO 26524 --- [api-platform] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-10-14T16:01:38.114+08:00  INFO 26524 --- [api-platform] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-10-14T16:01:38.114+08:00  INFO 26524 --- [api-platform] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.46]
+2025-10-14T16:01:38.241+08:00  INFO 26524 --- [api-platform] [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-10-14T16:01:38.242+08:00  INFO 26524 --- [api-platform] [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3423 ms
+2025-10-14T16:01:38.520+08:00  INFO 26524 --- [api-platform] [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-10-14T16:01:38.654+08:00  INFO 26524 --- [api-platform] [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.29.Final
+2025-10-14T16:01:38.731+08:00  INFO 26524 --- [api-platform] [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-10-14T16:01:39.178+08:00  INFO 26524 --- [api-platform] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-10-14T16:01:39.202+08:00  WARN 26524 --- [api-platform] [restartedMain] org.hibernate.orm.deprecation            : HHH90000021: Encountered deprecated setting [hibernate.temp.use_jdbc_metadata_defaults], use [hibernate.boot.allow_jdbc_metadata_access] instead
+2025-10-14T16:01:39.243+08:00  WARN 26524 --- [api-platform] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-10-14T16:01:39.299+08:00  INFO 26524 --- [api-platform] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [undefined/unknown]
+	Database driver: undefined/unknown
+	Database version: 11.0
+	Autocommit mode: undefined/unknown
+	Isolation level: <unknown>
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-10-14T16:01:40.376+08:00  INFO 26524 --- [api-platform] [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-10-14T16:01:40.379+08:00  INFO 26524 --- [api-platform] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-10-14T16:01:40.705+08:00  INFO 26524 --- [api-platform] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-10-14T16:01:41.527+08:00 DEBUG 26524 --- [api-platform] [restartedMain] c.b.apiplatform.filter.ApiKeyAuthFilter  : Filter 'apiKeyFilter' configured for use
+2025-10-14T16:01:43.118+08:00  INFO 26524 --- [api-platform] [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2025-10-14T16:01:43.132+08:00  INFO 26524 --- [api-platform] [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2025-10-14T16:01:43.309+08:00  INFO 26524 --- [api-platform] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-10-14T16:01:43.332+08:00  INFO 26524 --- [api-platform] [restartedMain] c.b.apiplatform.ApiPlatformApplication   : Started ApiPlatformApplication in 9.219 seconds (process running for 9.829)
