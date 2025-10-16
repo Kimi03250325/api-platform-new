@@ -12,11 +12,11 @@
     </parent>
     
     <groupId>com.bank</groupId>
-    <artifactId>api-platform</artifactId>
+    <artifactId>api-platform-cursor</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
     
-    <name>api-platform</name>
+    <name>API-Platform-Cursor</name>
     <description>銀行API平台</description>
     
     <properties>

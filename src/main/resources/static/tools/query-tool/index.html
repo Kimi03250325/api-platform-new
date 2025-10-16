@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>動態查詢測試工具</title>
+    <style>
+        body { font-family: Arial, Helvetica, sans-serif; margin: 24px; }
+        h1 { margin: 0 0 16px; }
+        .row { display: flex; gap: 12px; align-items: center; margin: 8px 0; }
+        label { min-width: 120px; }
+        input, select, textarea { width: 100%; padding: 8px; }
+        textarea { height: 120px; }
+        button { padding: 8px 14px; cursor: pointer; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; }
+        pre { background: #0b1021; color: #e6edf3; padding: 12px; border-radius: 6px; overflow: auto; }
+        .muted { color: #666; }
+        .ok { color: #1a7f37; }
+        .warn { color: #b54708; }
+        .err { color: #b42318; }
+    </style>
+    <script>
+        async function runQuery(evt) {
+            evt.preventDefault();
+            const endpoint = document.getElementById('endpoint').value.trim();
+            const method = document.getElementById('method').value;
+            const headersRaw = document.getElementById('headers').value.trim();
+            const bodyRaw = document.getElementById('body').value.trim();
+
+            let headers = { 'Content-Type': 'application/json' };
+            if (headersRaw) {
+                try { Object.assign(headers, JSON.parse(headersRaw)); }
+                catch (e) { return renderError('標頭(JSON) 解析失敗: ' + e.message); }
+            }
+
+            let fetchInit = { method, headers };
+            if (method !== 'GET' && bodyRaw) {
+                try { fetchInit.body = bodyRaw ? JSON.stringify(JSON.parse(bodyRaw)) : undefined; }
+                catch (e) { return renderError('請求本文(JSON) 解析失敗: ' + e.message); }
+            }
+
+            const out = document.getElementById('output');
+            out.textContent = '請求發送中...';
+            const t0 = performance.now();
+            try {
+                const res = await fetch(endpoint, fetchInit);
+                const txt = await res.text();
+                const t1 = performance.now();
+                let pretty;
+                try { pretty = JSON.stringify(JSON.parse(txt), null, 2); } catch { pretty = txt; }
+                out.textContent = pretty;
+                setStatus(`狀態: ${res.status} ${res.statusText} | 時間: ${(t1 - t0).toFixed(0)} ms`, res.ok ? 'ok' : 'err');
+            } catch (e) {
+                renderError('請求失敗: ' + e.message);
+            }
+        }
+
+        function renderError(msg) {
+            const out = document.getElementById('output');
+            out.textContent = msg;
+            setStatus('錯誤', 'err');
+        }
+
+        function setStatus(text, level) {
+            const el = document.getElementById('status');
+            el.className = level;
+            el.textContent = text;
+        }
+
+        function presetSample() {
+            // 範例：呼叫動態查詢 API，請依實際路由調整
+            document.getElementById('method').value = 'POST';
+            document.getElementById('endpoint').value = '/api/query/execute/LIST_CUSTOMERS';
+            document.getElementById('headers').value = JSON.stringify({ 'X-API-Key': '' });
+            document.getElementById('body').value = JSON.stringify({
+                params: { status: 'ACTIVE' },
+                pageNum: 1,
+                pageSize: 20
+            }, null, 2);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('form').addEventListener('submit', runQuery);
+            document.getElementById('preset').addEventListener('click', presetSample);
+            setStatus('就緒', 'muted');
+        });
+    </script>
+    <link rel="icon" href="data:," />
+    <meta http-equiv="Cache-Control" content="no-store" />
+</head>
+<body>
+    <h1>動態查詢測試工具</h1>
+    <p class="muted">此頁面部署於 <code>/tools/query-tool/</code>。若 API 需要金鑰，請在標頭加入 <code>X-API-Key</code>。</p>
+
+    <div class="grid">
+        <div class="card">
+            <form id="form">
+                <div class="row">
+                    <label for="method">方法</label>
+                    <select id="method">
+                        <option>GET</option>
+                        <option selected>POST</option>
+                        <option>PUT</option>
+                        <option>DELETE</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <label for="endpoint">端點</label>
+                    <input id="endpoint" placeholder="/api/dynamic/query" value="/api/dynamic/query" />
+                </div>
+                <div class="row">
+                    <label for="headers">標頭(JSON)</label>
+                    <textarea id="headers" placeholder='{"X-API-Key":""}'></textarea>
+                </div>
+                <div class="row">
+                    <label for="body">本文(JSON)</label>
+                    <textarea id="body" placeholder='{"queryCode":"SAMPLE_QUERY","params":{}}'></textarea>
+                </div>
+                <div class="row">
+                    <button type="submit">送出</button>
+                    <button type="button" id="preset">載入範例</button>
+                </div>
+            </form>
+        </div>
+        <div class="card">
+            <div class="row">
+                <strong id="status" class="muted">就緒</strong>
+            </div>
+            <pre id="output"></pre>
+        </div>
+    </div>
+
+    <p class="muted">相關：<a href="/swagger-ui/index.html">Swagger UI</a>、<a href="/actuator/health">健康檢查</a></p>
+</body>
+</html>
+
+

@@ -277,17 +277,18 @@ IF OBJECT_ID('dbo.api_query_config', 'U') IS NOT NULL
 GO
 
 CREATE TABLE dbo.api_query_config (
-    config_id INT IDENTITY(1,1) PRIMARY KEY,
-    query_code VARCHAR(50) NOT NULL UNIQUE,
-    query_name NVARCHAR(100) NOT NULL,
-    category VARCHAR(50),
-    datasource_code VARCHAR(50),
-    db_type VARCHAR(20),
+    query_id INT IDENTITY(1,1) PRIMARY KEY,
+    query_code VARCHAR(100) NOT NULL UNIQUE,
+    query_name NVARCHAR(200) NOT NULL,
+    datasource_code VARCHAR(50) NOT NULL,
     query_sql NVARCHAR(MAX) NOT NULL,
-    param_config NVARCHAR(MAX),  -- JSON 格式
-    is_enabled BIT NOT NULL DEFAULT 1,
     description NVARCHAR(500),
-    created_by NVARCHAR(50),
+    category VARCHAR(50),
+    is_enabled BIT NOT NULL DEFAULT 1,
+    require_api_key BIT NOT NULL DEFAULT 1,
+    max_page_size INT NULL,
+    cache_seconds INT NULL,
+    created_by NVARCHAR(50) NULL,
     created_at DATETIME2(7) NOT NULL DEFAULT GETDATE(),
     updated_at DATETIME2(7) NOT NULL DEFAULT GETDATE()
 );
@@ -309,40 +310,80 @@ PRINT N'✅ api_query_config 資料表建立完成';
 GO
 
 -- ============================================
--- 9. 資料來源配置表
+-- 9. API 查詢參數定義表
 -- ============================================
-IF OBJECT_ID('dbo.datasource_config', 'U') IS NOT NULL
-    DROP TABLE dbo.datasource_config;
+IF OBJECT_ID('dbo.api_query_params', 'U') IS NOT NULL
+    DROP TABLE dbo.api_query_params;
 GO
 
-CREATE TABLE dbo.datasource_config (
+CREATE TABLE dbo.api_query_params (
+    param_id INT IDENTITY(1,1) PRIMARY KEY,
+    query_id INT NOT NULL,
+    param_name VARCHAR(100) NOT NULL,
+    param_type VARCHAR(20) NOT NULL,
+    is_required BIT NOT NULL DEFAULT 0,
+    default_value NVARCHAR(200) NULL,
+    validation_regex NVARCHAR(500) NULL,
+    description NVARCHAR(200) NULL,
+    created_at DATETIME2(7) NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT fk_query_params_config FOREIGN KEY (query_id)
+        REFERENCES dbo.api_query_config(query_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+GO
+
+CREATE INDEX idx_query_params_qid ON dbo.api_query_params(query_id);
+CREATE INDEX idx_query_params_name ON dbo.api_query_params(param_name);
+GO
+
+EXEC sys.sp_addextendedproperty 
+    @name=N'MS_Description', 
+    @value=N'API 查詢參數定義表 - 參數名稱/型別/必填等', 
+    @level0type=N'SCHEMA', @level0name=N'dbo',
+    @level1type=N'TABLE', @level1name=N'api_query_params';
+GO
+
+PRINT N'✅ api_query_params 資料表建立完成';
+GO
+
+-- ============================================
+-- 10. 資料來源配置表
+-- ============================================
+IF OBJECT_ID('dbo.api_datasource_config', 'U') IS NOT NULL
+    DROP TABLE dbo.api_datasource_config;
+GO
+
+CREATE TABLE dbo.api_datasource_config (
     datasource_id INT IDENTITY(1,1) PRIMARY KEY,
     datasource_code VARCHAR(50) NOT NULL UNIQUE,
     datasource_name NVARCHAR(100) NOT NULL,
-    db_type VARCHAR(20) NOT NULL,  -- SQLSERVER, MYSQL, ORACLE, POSTGRES
+    db_type VARCHAR(20) NOT NULL,
     jdbc_url VARCHAR(500) NOT NULL,
-    username VARCHAR(100),
-    password_encrypted VARCHAR(500),
+    username VARCHAR(100) NOT NULL,
+    password_encrypted VARCHAR(500) NOT NULL,
+    driver_class NVARCHAR(200) NULL,
+    max_pool_size INT NULL,
+    min_idle INT NULL,
+    connection_timeout INT NULL,
     is_enabled BIT NOT NULL DEFAULT 1,
-    max_pool_size INT DEFAULT 10,
-    description NVARCHAR(500),
+    description NVARCHAR(500) NULL,
     created_at DATETIME2(7) NOT NULL DEFAULT GETDATE(),
     updated_at DATETIME2(7) NOT NULL DEFAULT GETDATE()
 );
 GO
 
-CREATE INDEX idx_datasource_code ON dbo.datasource_config(datasource_code);
-CREATE INDEX idx_datasource_enabled ON dbo.datasource_config(is_enabled);
+CREATE INDEX idx_api_ds_code ON dbo.api_datasource_config(datasource_code);
+CREATE INDEX idx_api_ds_enabled ON dbo.api_datasource_config(is_enabled);
 GO
 
 EXEC sys.sp_addextendedproperty 
     @name=N'MS_Description', 
-    @value=N'資料來源配置表 - 動態資料庫連線配置', 
+    @value=N'資料來源配置表 - 動態資料庫連線配置 (JPA 對應)', 
     @level0type=N'SCHEMA', @level0name=N'dbo',
-    @level1type=N'TABLE', @level1name=N'datasource_config';
+    @level1type=N'TABLE', @level1name=N'api_datasource_config';
 GO
 
-PRINT N'✅ datasource_config 資料表建立完成';
+PRINT N'✅ api_datasource_config 資料表建立完成';
 GO
 
 -- ============================================
@@ -435,24 +476,24 @@ BEGIN
     UPDATE dbo.api_query_config
     SET updated_at = GETDATE()
     FROM dbo.api_query_config t
-    INNER JOIN inserted i ON t.config_id = i.config_id;
+    INNER JOIN inserted i ON t.query_id = i.query_id;
 END;
 GO
 
--- datasource_config 觸發器
-IF OBJECT_ID('dbo.trg_datasource_config_update', 'TR') IS NOT NULL
-    DROP TRIGGER dbo.trg_datasource_config_update;
+-- api_datasource_config 觸發器
+IF OBJECT_ID('dbo.trg_api_datasource_config_update', 'TR') IS NOT NULL
+    DROP TRIGGER dbo.trg_api_datasource_config_update;
 GO
 
-CREATE TRIGGER trg_datasource_config_update
-ON dbo.datasource_config
+CREATE TRIGGER trg_api_datasource_config_update
+ON dbo.api_datasource_config
 AFTER UPDATE
 AS
 BEGIN
     SET NOCOUNT ON;
-    UPDATE dbo.datasource_config
+    UPDATE dbo.api_datasource_config
     SET updated_at = GETDATE()
-    FROM dbo.datasource_config t
+    FROM dbo.api_datasource_config t
     INNER JOIN inserted i ON t.datasource_id = i.datasource_id;
 END;
 GO
