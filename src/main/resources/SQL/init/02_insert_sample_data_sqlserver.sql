@@ -1,15 +1,25 @@
 -- ============================================
 -- 銀行 API 平台 - SQL Server 2022 測試資料腳本
--- 執行順序：02
--- 日期：2025-10-14
+-- 版本: v2.1 (修正參數格式)
+-- 執行順序: 02
+-- 更新日期: 2025-10-21
+-- 說明: 包含完整的測試資料與動態查詢配置
+-- 重要: 所有 SQL 參數使用 :paramName 格式（JDBC 標準）
 -- ============================================
 
 USE api_db;
 GO
 
+PRINT N'開始插入測試資料...';
+PRINT N'';
+GO
+
 -- ============================================
 -- 1. 插入測試 API Keys
 -- ============================================
+PRINT N'[1/10] 插入 API Keys 測試資料...';
+GO
+
 SET IDENTITY_INSERT dbo.api_keys ON;
 GO
 
@@ -46,12 +56,15 @@ GO
 SET IDENTITY_INSERT dbo.api_keys OFF;
 GO
 
-PRINT N'✅ API Keys 測試資料插入完成 (5 筆)';
+PRINT N'✅ API Keys: 5 筆資料插入完成';
 GO
 
 -- ============================================
 -- 2. 插入測試客戶資料
 -- ============================================
+PRINT N'[2/10] 插入客戶測試資料...';
+GO
+
 SET IDENTITY_INSERT dbo.customers ON;
 GO
 
@@ -74,12 +87,15 @@ GO
 SET IDENTITY_INSERT dbo.customers OFF;
 GO
 
-PRINT N'✅ 客戶測試資料插入完成 (10 筆)';
+PRINT N'✅ Customers: 10 筆資料插入完成';
 GO
 
 -- ============================================
 -- 3. 插入測試投資組合
 -- ============================================
+PRINT N'[3/10] 插入投資組合測試資料...';
+GO
+
 SET IDENTITY_INSERT dbo.portfolios ON;
 GO
 
@@ -107,12 +123,15 @@ GO
 SET IDENTITY_INSERT dbo.portfolios OFF;
 GO
 
-PRINT N'✅ 投資組合測試資料插入完成 (15 筆)';
+PRINT N'✅ Portfolios: 15 筆資料插入完成';
 GO
 
 -- ============================================
 -- 4. 插入測試交易記錄
 -- ============================================
+PRINT N'[4/10] 插入交易記錄測試資料...';
+GO
+
 SET IDENTITY_INSERT dbo.transactions ON;
 GO
 
@@ -139,68 +158,43 @@ INSERT INTO dbo.transactions (
 (7, 6, 'BUY', 'FUND002', N'貝萊德世界能源基金', 3000.0000, 45.80, 137400.00, 
  'TWD', '2025-10-04 10:00:00', '2025-10-06', 'COMPLETED', NULL),
 (8, 7, 'BUY', 'FUND003', N'摩根新興市場債券基金', 2000.0000, 68.50, 137000.00, 
- 'TWD', '2025-10-05 11:30:00', '2025-10-07', 'COMPLETED', N'債券配置'),
+ 'TWD', '2025-10-04 15:00:00', '2025-10-06', 'COMPLETED', NULL),
 
--- 美股交易
-(9, 12, 'BUY', 'AAPL', N'Apple Inc.', 50.0000, 178.50, 8925.00, 
- 'USD', '2025-10-05 22:00:00', '2025-10-08', 'COMPLETED', N'美股夜盤'),
-(10, 12, 'BUY', 'MSFT', N'Microsoft Corp.', 30.0000, 375.20, 11256.00, 
- 'USD', '2025-10-06 22:30:00', '2025-10-09', 'COMPLETED', NULL),
-(11, 14, 'BUY', 'TSLA', N'Tesla Inc.', 25.0000, 248.30, 6207.50, 
- 'USD', '2025-10-07 21:45:00', '2025-10-10', 'COMPLETED', N'科技股加碼'),
+-- 股利收入
+(9, 1, 'DIVIDEND', '2330.TW', N'台積電', 100.0000, 3.00, 300.00, 
+ 'TWD', '2025-10-05 00:00:00', '2025-10-05', 'COMPLETED', N'現金股利'),
+(10, 4, 'DIVIDEND', '2317.TW', N'鴻海', 300.0000, 4.50, 1350.00, 
+ 'TWD', '2025-10-05 00:00:00', '2025-10-05', 'COMPLETED', N'現金股利'),
 
 -- 賣出交易
-(12, 1, 'SELL', '2330.TW', N'台積電', 50.0000, 595.00, 29750.00, 
- 'TWD', '2025-10-08 13:00:00', '2025-10-10', 'COMPLETED', N'部分獲利了結'),
-(13, 4, 'SELL', '2317.TW', N'鴻海', 100.0000, 112.00, 11200.00, 
- 'TWD', '2025-10-09 10:15:00', '2025-10-11', 'COMPLETED', N'調整持股'),
+(11, 2, 'SELL', '0056.TW', N'元大高股息', 100.0000, 36.00, 3600.00, 
+ 'TWD', '2025-10-06 13:30:00', '2025-10-10', 'COMPLETED', N'部分獲利了結'),
+(12, 3, 'SELL', '2454.TW', N'聯發科', 50.0000, 1080.00, 54000.00, 
+ 'TWD', '2025-10-07 10:00:00', '2025-10-11', 'COMPLETED', N'調整部位'),
 
--- 股息收益
-(14, 1, 'DIVIDEND', '2330.TW', N'台積電', 50.0000, 3.00, 150.00, 
- 'TWD', '2025-10-10 00:00:00', '2025-10-10', 'COMPLETED', N'Q3股息'),
-(15, 3, 'DIVIDEND', '2454.TW', N'聯發科', 150.0000, 25.00, 3750.00, 
- 'TWD', '2025-10-10 00:00:00', '2025-10-10', 'COMPLETED', N'Q3股息'),
+-- 手續費
+(13, 1, 'FEE', 'TRADE_FEE', N'交易手續費', 1.0000, 29.00, 29.00, 
+ 'TWD', '2025-10-01 09:00:00', '2025-10-01', 'COMPLETED', N'買進手續費'),
+(14, 2, 'FEE', 'TRADE_FEE', N'交易手續費', 1.0000, 18.00, 18.00, 
+ 'TWD', '2025-10-06 13:30:00', '2025-10-06', 'COMPLETED', N'賣出手續費'),
 
--- ETF交易
-(16, 8, 'BUY', '00878.TW', N'國泰永續高股息', 400.0000, 21.50, 8600.00, 
- 'TWD', '2025-10-10 09:00:00', '2025-10-14', 'COMPLETED', N'高股息ETF'),
-(17, 9, 'BUY', '00692.TW', N'富邦公司治理', 150.0000, 38.20, 5730.00, 
- 'TWD', '2025-10-11 10:30:00', '2025-10-15', 'PENDING', N'ESG投資'),
-
--- 債券交易
-(18, 12, 'BUY', 'BOND001', N'美國10年期公債', 10000.0000, 95.50, 955000.00, 
- 'USD', '2025-10-11 15:00:00', '2025-10-13', 'COMPLETED', N'避險配置'),
-(19, 6, 'BUY', 'BOND002', N'台灣政府公債', 50000.0000, 98.20, 4910000.00, 
- 'TWD', '2025-10-12 14:00:00', '2025-10-14', 'COMPLETED', N'固定收益'),
-
--- 最近交易（含待處理）
-(20, 11, 'BUY', '2454.TW', N'聯發科', 80.0000, 1080.00, 86400.00, 
- 'TWD', '2025-10-13 09:30:00', '2025-10-15', 'PENDING', N'科技股加碼'),
-(21, 10, 'BUY', 'NVDA', N'NVIDIA Corp.', 15.0000, 485.00, 7275.00, 
- 'USD', '2025-10-13 22:00:00', '2025-10-16', 'PENDING', N'AI晶片龍頭'),
-
--- 轉帳交易
-(22, 2, 'TRANSFER', 'CASH', N'現金轉入', 1.0000, 50000.00, 50000.00, 
- 'TWD', '2025-10-14 10:00:00', '2025-10-14', 'COMPLETED', N'資金調度'),
-(23, 15, 'TRANSFER', 'CASH', N'現金轉入', 1.0000, 10000.00, 10000.00, 
- 'USD', '2025-10-14 11:00:00', '2025-10-14', 'COMPLETED', N'美元帳戶入金'),
-
--- 失敗交易
-(24, 7, 'BUY', '2881.TW', N'富邦金', 200.0000, 85.00, 17000.00, 
- 'TWD', '2025-10-14 09:00:00', '2025-10-16', 'FAILED', N'資金不足'),
-(25, 13, 'BUY', 'GLD', N'SPDR Gold Shares', 50.0000, 185.00, 9250.00, 
- 'USD', '2025-10-14 22:00:00', '2025-10-17', 'CANCELLED', N'用戶取消');
+-- 待處理交易
+(15, 8, 'BUY', '2412.TW', N'中華電', 200.0000, 123.50, 24700.00, 
+ 'TWD', '2025-10-08 14:00:00', '2025-10-10', 'PENDING', N'待確認');
 GO
 
 SET IDENTITY_INSERT dbo.transactions OFF;
 GO
 
-PRINT N'✅ 交易記錄測試資料插入完成 (25 筆)';
+PRINT N'✅ Transactions: 15 筆資料插入完成';
 GO
 
 -- ============================================
 -- 5. 插入系統參數
 -- ============================================
+PRINT N'[5/10] 插入系統參數...';
+GO
+
 INSERT INTO dbo.system_parameters (param_key, param_value, description) 
 VALUES 
 ('API_VERSION', '1.0.0', N'API 版本號'),
@@ -220,12 +214,46 @@ VALUES
 ('ENCRYPTION_ALGORITHM', 'AES-256-GCM', N'加密演算法');
 GO
 
-PRINT N'✅ 系統參數測試資料插入完成 (15 筆)';
+PRINT N'✅ System Parameters: 15 筆資料插入完成';
 GO
 
 -- ============================================
--- 6. 插入資料來源配置
+-- 6. 插入資料來源配置 (新版 api_datasource_config)
 -- ============================================
+PRINT N'[6/10] 插入資料來源配置...';
+GO
+
+INSERT INTO dbo.api_datasource_config (
+    datasource_code, datasource_name, db_type, 
+    jdbc_url, username, password_encrypted, 
+    is_enabled, max_pool_size, min_idle, description
+) VALUES 
+('PRIMARY_DB', N'主資料庫', 'SQLSERVER',
+ 'jdbc:sqlserver://localhost:1433;databaseName=api_db;encrypt=true;trustServerCertificate=true',
+ 'api_user', 'ENCRYPTED_PASSWORD_HERE', 1, 20, 5, N'主要業務資料庫'),
+
+('REPORT_DB', N'報表資料庫', 'SQLSERVER',
+ 'jdbc:sqlserver://localhost:1433;databaseName=report_db;encrypt=true;trustServerCertificate=true',
+ 'report_user', 'ENCRYPTED_PASSWORD_HERE', 1, 10, 3, N'報表專用資料庫'),
+
+('ARCHIVE_DB', N'歷史資料庫', 'SQLSERVER',
+ 'jdbc:sqlserver://archive-server:1433;databaseName=archive_db;encrypt=true;trustServerCertificate=true',
+ 'archive_user', 'ENCRYPTED_PASSWORD_HERE', 1, 5, 2, N'歷史資料歸檔庫'),
+
+('EXTERNAL_MYSQL', N'外部MySQL系統', 'MYSQL',
+ 'jdbc:mysql://external-host:3306/external_db?useSSL=false&serverTimezone=Asia/Taipei',
+ 'external_user', 'ENCRYPTED_PASSWORD_HERE', 0, 10, 3, N'外部合作夥伴MySQL資料庫');
+GO
+
+PRINT N'✅ API Datasource Config: 4 筆資料插入完成';
+GO
+
+-- ============================================
+-- 7. 插入資料來源配置 (舊版 datasource_config 相容)
+-- ============================================
+PRINT N'[7/10] 插入舊版資料來源配置（相容性）...';
+GO
+
 INSERT INTO dbo.datasource_config (
     datasource_code, datasource_name, db_type, 
     jdbc_url, username, password_encrypted, 
@@ -233,85 +261,110 @@ INSERT INTO dbo.datasource_config (
 ) VALUES 
 ('PRIMARY_DB', N'主資料庫', 'SQLSERVER',
  'jdbc:sqlserver://localhost:1433;databaseName=api_db;encrypt=true;trustServerCertificate=true',
- 'api_user', 'ENCRYPTED_PASSWORD_HERE', 1, 20, N'主要業務資料庫'),
-
-('REPORT_DB', N'報表資料庫', 'SQLSERVER',
- 'jdbc:sqlserver://localhost:1433;databaseName=report_db;encrypt=true;trustServerCertificate=true',
- 'report_user', 'ENCRYPTED_PASSWORD_HERE', 1, 10, N'報表專用資料庫'),
-
-('ARCHIVE_DB', N'歷史資料庫', 'SQLSERVER',
- 'jdbc:sqlserver://archive-server:1433;databaseName=archive_db;encrypt=true;trustServerCertificate=true',
- 'archive_user', 'ENCRYPTED_PASSWORD_HERE', 1, 5, N'歷史資料歸檔庫'),
-
-('EXTERNAL_MYSQL', N'外部MySQL系統', 'MYSQL',
- 'jdbc:mysql://external-host:3306/external_db?useSSL=false&serverTimezone=Asia/Taipei',
- 'external_user', 'ENCRYPTED_PASSWORD_HERE', 0, 10, N'外部合作夥伴MySQL資料庫');
+ 'api_user', 'ENCRYPTED_PASSWORD_HERE', 1, 20, N'主要業務資料庫（舊版格式）');
 GO
 
-PRINT N'✅ 資料來源配置測試資料插入完成 (4 筆)';
+PRINT N'✅ Datasource Config (舊版): 1 筆資料插入完成';
 GO
 
 -- ============================================
--- 7. 插入 API 查詢配置
+-- 8. 插入 API 查詢配置 (重要：使用 :paramName 格式)
 -- ============================================
+PRINT N'[8/10] 插入 API 查詢配置...';
+GO
+
+SET IDENTITY_INSERT dbo.api_query_config ON;
+GO
+
 INSERT INTO dbo.api_query_config (
-    query_code, query_name, category, 
-    datasource_code, db_type, query_sql, 
-    param_config, is_enabled, description, created_by
+    query_id, query_code, query_name, datasource_code, 
+    query_sql, description, category, 
+    is_enabled, require_api_key, max_page_size, cache_seconds, created_by
 ) VALUES 
--- 客戶查詢
-('GET_CUSTOMER_BY_CODE', N'根據客戶代碼查詢', 'CUSTOMER',
- 'PRIMARY_DB', 'SQLSERVER',
- 'SELECT * FROM dbo.customers WHERE customer_code = @customerCode',
- '[{"paramName":"customerCode","paramType":"STRING","required":true,"description":"客戶代碼"}]',
- 1, N'查詢單一客戶資料', 'SYSTEM'),
+-- 客戶查詢 (使用 :paramName 格式)
+(1, 'LIST_CUSTOMERS', N'查詢客戶列表', 'PRIMARY_DB',
+ 'SELECT * FROM dbo.customers WHERE account_status = :status ORDER BY created_at DESC',
+ N'查詢客戶列表（支援分頁）', 'CUSTOMER', 1, 0, 200, 0, 'SYSTEM'),
 
-('LIST_CUSTOMERS', N'查詢客戶列表', 'CUSTOMER',
- 'PRIMARY_DB', 'SQLSERVER',
- 'SELECT * FROM dbo.customers WHERE account_status = @status ORDER BY created_at DESC',
- '[{"paramName":"status","paramType":"STRING","required":false,"defaultValue":"ACTIVE","description":"帳戶狀態"}]',
- 1, N'查詢客戶列表（支援分頁）', 'SYSTEM'),
+(2, 'GET_CUSTOMER_BY_CODE', N'根據客戶代碼查詢', 'PRIMARY_DB',
+ 'SELECT * FROM dbo.customers WHERE customer_code = :customerCode',
+ N'查詢單一客戶資料', 'CUSTOMER', 1, 0, 100, 0, 'SYSTEM'),
 
--- 投資組合查詢
-('GET_PORTFOLIO_BY_CUSTOMER', N'查詢客戶投資組合', 'PORTFOLIO',
- 'PRIMARY_DB', 'SQLSERVER',
- 'SELECT p.*, c.name AS customer_name FROM dbo.portfolios p INNER JOIN dbo.customers c ON p.customer_id = c.customer_id WHERE p.customer_id = @customerId AND p.status = @status',
- '[{"paramName":"customerId","paramType":"LONG","required":true,"description":"客戶ID"},{"paramName":"status","paramType":"STRING","required":false,"defaultValue":"ACTIVE","description":"組合狀態"}]',
- 1, N'查詢客戶所有投資組合', 'SYSTEM'),
+(3, 'SEARCH_CUSTOMER_BY_NAME', N'依姓名模糊查詢客戶', 'PRIMARY_DB',
+ 'SELECT * FROM dbo.customers WHERE name LIKE ''%'' + :name + ''%'' ORDER BY updated_at DESC',
+ N'關鍵字搜尋姓名', 'CUSTOMER', 1, 0, 100, 0, 'SYSTEM'),
 
-('GET_PORTFOLIO_SUMMARY', N'投資組合總覽', 'PORTFOLIO',
- 'PRIMARY_DB', 'SQLSERVER',
+-- 投資組合查詢 (使用 :paramName 格式)
+(4, 'GET_PORTFOLIO_BY_CUSTOMER', N'查詢客戶投資組合', 'PRIMARY_DB',
+ 'SELECT p.*, c.name AS customer_name FROM dbo.portfolios p INNER JOIN dbo.customers c ON p.customer_id = c.customer_id WHERE p.customer_id = :customerId AND p.status = :status',
+ N'查詢客戶所有投資組合', 'PORTFOLIO', 1, 0, 100, 0, 'SYSTEM'),
+
+(5, 'GET_PORTFOLIO_SUMMARY', N'投資組合總覽', 'PRIMARY_DB',
  'SELECT currency, COUNT(*) as portfolio_count, SUM(total_value) as total_value FROM dbo.portfolios WHERE status = ''ACTIVE'' GROUP BY currency',
- '[]',
- 1, N'統計各幣別投資組合總額', 'SYSTEM'),
+ N'統計各幣別投資組合總額', 'PORTFOLIO', 1, 0, 100, 0, 'SYSTEM'),
 
--- 交易查詢
-('GET_TRANSACTIONS_BY_PORTFOLIO', N'查詢投資組合交易', 'TRANSACTION',
- 'PRIMARY_DB', 'SQLSERVER',
- 'SELECT * FROM dbo.transactions WHERE portfolio_id = @portfolioId AND transaction_date >= @startDate AND transaction_date <= @endDate ORDER BY transaction_date DESC',
- '[{"paramName":"portfolioId","paramType":"LONG","required":true,"description":"投資組合ID"},{"paramName":"startDate","paramType":"DATETIME","required":true,"description":"開始日期"},{"paramName":"endDate","paramType":"DATETIME","required":true,"description":"結束日期"}]',
- 1, N'查詢特定期間交易記錄', 'SYSTEM'),
+-- 交易查詢 (使用 :paramName 格式)
+(6, 'GET_TRANSACTIONS_BY_PORTFOLIO', N'查詢投資組合交易', 'PRIMARY_DB',
+ 'SELECT * FROM dbo.transactions WHERE portfolio_id = :portfolioId AND transaction_date >= :startDate AND transaction_date <= :endDate ORDER BY transaction_date DESC',
+ N'查詢特定期間交易記錄', 'TRANSACTION', 1, 0, 500, 0, 'SYSTEM'),
 
-('GET_TRANSACTION_SUMMARY', N'交易統計報表', 'TRANSACTION',
- 'PRIMARY_DB', 'SQLSERVER',
- 'SELECT transaction_type, status, COUNT(*) as count, SUM(amount) as total_amount FROM dbo.transactions WHERE transaction_date >= @startDate GROUP BY transaction_type, status',
- '[{"paramName":"startDate","paramType":"DATETIME","required":true,"description":"統計起始日期"}]',
- 1, N'統計各類型交易數量與金額', 'SYSTEM'),
+(7, 'GET_TRANSACTION_SUMMARY', N'交易統計報表', 'PRIMARY_DB',
+ 'SELECT transaction_type, status, COUNT(*) as count, SUM(amount) as total_amount FROM dbo.transactions WHERE transaction_date >= :startDate GROUP BY transaction_type, status',
+ N'統計各類型交易數量與金額', 'TRANSACTION', 1, 0, 100, 0, 'SYSTEM'),
 
--- 複雜查詢
-('GET_CUSTOMER_WEALTH_REPORT', N'客戶財富報表', 'REPORT',
- 'PRIMARY_DB', 'SQLSERVER',
- 'SELECT c.customer_code, c.name, c.risk_level, COUNT(DISTINCT p.portfolio_id) as portfolio_count, SUM(p.total_value) as total_wealth FROM dbo.customers c LEFT JOIN dbo.portfolios p ON c.customer_id = p.customer_id WHERE c.account_status = ''ACTIVE'' AND p.status = ''ACTIVE'' GROUP BY c.customer_code, c.name, c.risk_level HAVING SUM(p.total_value) >= @minWealth ORDER BY total_wealth DESC',
- '[{"paramName":"minWealth","paramType":"DECIMAL","required":false,"defaultValue":"0","description":"最低財富門檻"}]',
- 1, N'客戶財富統計報表', 'SYSTEM');
+-- 複雜查詢 (使用 :paramName 格式)
+(8, 'GET_CUSTOMER_WEALTH_REPORT', N'客戶財富報表', 'REPORT',
+ 'SELECT c.customer_code, c.name, c.risk_level, COUNT(DISTINCT p.portfolio_id) as portfolio_count, SUM(p.total_value) as total_wealth FROM dbo.customers c LEFT JOIN dbo.portfolios p ON c.customer_id = p.customer_id WHERE c.account_status = ''ACTIVE'' AND p.status = ''ACTIVE'' GROUP BY c.customer_code, c.name, c.risk_level HAVING SUM(p.total_value) >= :minWealth ORDER BY total_wealth DESC',
+ N'客戶財富統計報表', 'REPORT', 1, 0, 100, 300, 'SYSTEM');
 GO
 
-PRINT N'✅ API 查詢配置測試資料插入完成 (7 筆)';
+SET IDENTITY_INSERT dbo.api_query_config OFF;
+GO
+
+PRINT N'✅ API Query Config: 8 筆資料插入完成';
 GO
 
 -- ============================================
--- 8. 插入 API 訪問日誌（模擬資料）
+-- 9. 插入 API 查詢參數定義
 -- ============================================
+PRINT N'[9/10] 插入 API 查詢參數定義...';
+GO
+
+INSERT INTO dbo.api_query_params (query_id, param_name, param_type, is_required, default_value, validation_regex, description) VALUES
+-- LIST_CUSTOMERS
+(1, 'status', 'STRING', 0, 'ACTIVE', NULL, N'帳戶狀態'),
+
+-- GET_CUSTOMER_BY_CODE
+(2, 'customerCode', 'STRING', 1, NULL, '^[A-Z0-9]{5}$', N'客戶代碼'),
+
+-- SEARCH_CUSTOMER_BY_NAME
+(3, 'name', 'STRING', 1, NULL, '^.{1,20}$', N'姓名關鍵字(1-20字)'),
+
+-- GET_PORTFOLIO_BY_CUSTOMER
+(4, 'customerId', 'LONG', 1, NULL, '^[0-9]+$', N'客戶ID'),
+(4, 'status', 'STRING', 0, 'ACTIVE', NULL, N'組合狀態'),
+
+-- GET_TRANSACTIONS_BY_PORTFOLIO
+(6, 'portfolioId', 'LONG', 1, NULL, '^[0-9]+$', N'投資組合ID'),
+(6, 'startDate', 'DATETIME', 1, NULL, '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$', N'開始日期 yyyy-MM-dd HH:mm:ss'),
+(6, 'endDate', 'DATETIME', 1, NULL, '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$', N'結束日期 yyyy-MM-dd HH:mm:ss'),
+
+-- GET_TRANSACTION_SUMMARY
+(7, 'startDate', 'DATETIME', 1, NULL, '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$', N'統計起始日期'),
+
+-- GET_CUSTOMER_WEALTH_REPORT
+(8, 'minWealth', 'DECIMAL', 0, '0', '^[0-9]+(\.[0-9]{1,2})?$', N'最低財富門檻');
+GO
+
+PRINT N'✅ API Query Params: 10 筆資料插入完成';
+GO
+
+-- ============================================
+-- 10. 插入 API 訪問日誌（模擬資料）
+-- ============================================
+PRINT N'[10/10] 插入 API 訪問日誌...';
+GO
+
 INSERT INTO dbo.api_access_log (
     api_key, app_name, endpoint, method, 
     status_code, response_time, ip_address, user_agent
@@ -337,103 +390,61 @@ INSERT INTO dbo.api_access_log (
  'PostmanRuntime/7.32.0');
 GO
 
-PRINT N'✅ API 訪問日誌測試資料插入完成 (5 筆)';
+PRINT N'✅ API Access Log: 5 筆資料插入完成';
 GO
 
 -- ============================================
--- 9. 插入外部系統介接日誌
--- ============================================
-INSERT INTO dbo.external_system_log (
-    system_name, operation, status, execution_time
-) VALUES 
-(N'核心銀行系統', N'查詢帳戶餘額', 'SUCCESS', 234),
-(N'信用卡系統', N'查詢交易明細', 'SUCCESS', 156),
-(N'風險管理系統', N'更新風險評級', 'SUCCESS', 489),
-(N'報表系統', N'產生月報表', 'SUCCESS', 2345),
-(N'簡訊通知服務', N'發送交易通知', 'FAILED', 5000);
-GO
-
-PRINT N'✅ 外部系統介接日誌測試資料插入完成 (5 筆)';
-GO
-
--- ============================================
--- 10. 驗證所有資料插入
+-- 驗證資料插入與參數格式
 -- ============================================
 PRINT N'';
 PRINT N'========================================';
-PRINT N'測試資料插入完成！';
+PRINT N'✅ 測試資料插入完成！';
 PRINT N'========================================';
 PRINT N'';
 
-SELECT N'API Keys' AS [資料表], COUNT(*) AS [筆數] FROM dbo.api_keys
-UNION ALL
-SELECT N'Customers', COUNT(*) FROM dbo.customers
-UNION ALL
-SELECT N'Portfolios', COUNT(*) FROM dbo.portfolios
-UNION ALL
-SELECT N'Transactions', COUNT(*) FROM dbo.transactions
-UNION ALL
-SELECT N'System Parameters', COUNT(*) FROM dbo.system_parameters
-UNION ALL
-SELECT N'Datasource Config', COUNT(*) FROM dbo.datasource_config
-UNION ALL
-SELECT N'API Query Config', COUNT(*) FROM dbo.api_query_config
-UNION ALL
-SELECT N'API Access Log', COUNT(*) FROM dbo.api_access_log
-UNION ALL
-SELECT N'External System Log', COUNT(*) FROM dbo.external_system_log;
-GO
-
-PRINT N'========================================';
-PRINT N'';
-
--- ============================================
--- 11. 查看關鍵資料摘要
--- ============================================
-
-PRINT N'=== API Keys 摘要 ===';
-SELECT app_name AS [應用名稱], api_key AS [API Key], 
-       rate_limit AS [流量限制], status AS [狀態]
-FROM dbo.api_keys;
-GO
-
-PRINT N'';
-PRINT N'=== 客戶摘要 ===';
-SELECT customer_code AS [客戶代碼], name AS [姓名], 
-       risk_level AS [風險等級], account_status AS [狀態]
-FROM dbo.customers;
-GO
-
-PRINT N'';
-PRINT N'=== 投資組合摘要（前10筆）===';
-SELECT TOP 10
-    p.portfolio_code AS [組合代碼], 
-    c.name AS [客戶姓名], 
-    p.portfolio_name AS [組合名稱], 
-    p.total_value AS [總價值],
-    p.currency AS [幣別]
-FROM dbo.portfolios p
-INNER JOIN dbo.customers c ON p.customer_id = c.customer_id
-ORDER BY p.total_value DESC;
-GO
-
-PRINT N'';
-PRINT N'=== 最近交易記錄（前10筆）===';
-SELECT TOP 10
-    t.transaction_id AS [交易ID], 
-    p.portfolio_code AS [組合代碼], 
-    t.transaction_type AS [類型], 
-    t.instrument_name AS [商品名稱], 
-    t.amount AS [金額], 
-    t.status AS [狀態],
-    t.transaction_date AS [交易日期]
-FROM dbo.transactions t
-INNER JOIN dbo.portfolios p ON t.portfolio_id = p.portfolio_id
-ORDER BY t.transaction_date DESC;
+SELECT 
+    '資料表名稱' = t.name,
+    '資料筆數' = SUM(p.rows)
+FROM sys.tables t
+INNER JOIN sys.partitions p ON t.object_id = p.object_id
+WHERE t.schema_id = SCHEMA_ID('dbo')
+    AND p.index_id IN (0, 1)
+    AND t.name IN (
+        'api_keys', 'customers', 'portfolios', 'transactions',
+        'system_parameters', 'api_datasource_config', 'datasource_config',
+        'api_query_config', 'api_query_params', 'api_access_log'
+    )
+GROUP BY t.name
+ORDER BY t.name;
 GO
 
 PRINT N'';
 PRINT N'========================================';
-PRINT N'所有測試資料已成功插入！';
+PRINT N'🔍 驗證 SQL 參數格式';
 PRINT N'========================================';
+
+SELECT 
+    query_code AS [查詢代碼],
+    query_name AS [查詢名稱],
+    CASE 
+        WHEN query_sql LIKE '%@%' AND query_sql NOT LIKE '%''@%''%' THEN '❌ 錯誤：使用 @ 參數'
+        WHEN query_sql LIKE '%:%' THEN '✅ 正確：使用 : 參數'
+        ELSE '⚠️ 無參數'
+    END AS [參數格式檢查],
+    LEN(query_sql) - LEN(REPLACE(query_sql, ':', '')) AS [參數數量]
+FROM dbo.api_query_config
+WHERE is_enabled = 1
+ORDER BY query_id;
 GO
+
+PRINT N'';
+PRINT N'========================================';
+PRINT N'📊 資料統計:';
+PRINT N'  • API Keys: 5 筆';
+PRINT N'  • Customers: 10 筆';
+PRINT N'  • Portfolios: 15 筆';
+PRINT N'  • Transactions: 15 筆';
+PRINT N'  • System Parameters: 15 筆';
+PRINT N'  • API Datasource Config: 4 筆';
+PRINT N'  • Datasource Config (舊): 1 筆';
+PRINT N
