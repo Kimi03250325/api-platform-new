@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏦 動態查詢管理介面 - 銀行 API 平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 1.1em;
+            border: none;
+            background: transparent;
+        }
+        
+        .nav-tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .nav-tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 4px solid #667eea;
+            margin-bottom: -3px;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            padding: 30px;
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Cards */
+        .card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+        
+        .card-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            resize: vertical;
+        }
+        
+        select.form-control {
+            cursor: pointer;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85em;
+        }
+        
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Status Badges */
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        /* Alert Messages */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            color: #0c5460;
+        }
+        
+        /* Grid Layout */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+        
+        /* Parameter List */
+        .param-list {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .param-item {
+            background: white;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Code Preview */
+        .code-preview {
+            background: #2d3748;
+            color: #68d391;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tab {
+                font-size: 0.9em;
+                padding: 15px 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+        
+        /* Action Buttons in Table */
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏦 動態查詢管理介面</h1>
+            <p>銀行 API 平台 - 配置化查詢管理系統</p>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('datasource')">
+                📊 資料源管理
+            </button>
+            <button class="nav-tab" onclick="switchTab('query')">
+                🔍 查詢配置
+            </button>
+            <button class="nav-tab" onclick="switchTab('params')">
+                ⚙️ 參數管理
+            </button>
+            <button class="nav-tab" onclick="switchTab('test')">
+                🧪 測試執行
+            </button>
+        </div>
+        
+        <!-- Tab 1: 資料源管理 -->
+        <div id="tab-datasource" class="tab-content active">
+            <div class="card">
+                <h2 class="card-title">📊 資料源配置管理</h2>
+                
+                <div class="search-bar">
+                    <input type="text" class="form-control search-input" placeholder="搜尋資料源代碼或名稱..." id="datasourceSearch">
+                    <button class="btn btn-primary" onclick="searchDatasources()">🔍 搜尋</button>
+                    <button class="btn btn-success" onclick="showAddDatasourceForm()">➕ 新增資料源</button>
+                </div>
+                
+                <div id="datasourceList" class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>資料源代碼</th>
+                                <th>資料源名稱</th>
+                                <th>JDBC URL</th>
+                                <th>用戶名</th>
+                                <th>狀態</th>
+                                <th>測試連線</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="datasourceTableBody">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 30px;">
+                                    <div class="spinner"></div>
+                                    <p>載入資料源列表中...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 新增/編輯資料源表單 -->
+            <div id="datasourceForm" class="card" style="display: none;">
+                <h2 class="card-title" id="datasourceFormTitle">➕ 新增資料源</h2>
+                
+                <form id="datasourceFormContent">
+                    <input type="hidden" id="datasourceId">
+                    
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="form-label">資料源代碼 *</label>
+                            <input type="text" class="form-control" id="datasourceCode" 
+                                   placeholder="例: PRIMARY_DB" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">資料源名稱 *</label>
+                            <input type="text" class="form-control" id="datasourceName" 
+                                   placeholder="例: 主資料庫" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">JDBC URL *</label>
+                        <input type="text" class="form-control" id="jdbcUrl" 
+                               placeholder="jdbc:sqlserver://localhost:1433;databaseName=api_db;encrypt=true;trustServerCertificate=true" required>
+                    </div>
+                    
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="form-label">用戶名 *</label>
+                            <input type="text" class="form-control" id="username" 
+                                   placeholder="資料庫用戶名" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">密碼 *</label>
+                            <input type="password" class="form-control" id="password" 
+                                   placeholder="資料庫密碼" required>
+                        </div>
+                    </div>
+                    
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="form-label">驅動類別 *</label>
+                            <select class="form-control" id="driverClassName" required>
+                                <option value="com.microsoft.sqlserver.jdbc.SQLServerDriver">SQL Server</option>
+                                <option value="oracle.jdbc.OracleDriver">Oracle</option>
+                                <option value="com.mysql.cj.jdbc.Driver">MySQL</option>
+                                <option value="org.postgresql.Driver">PostgreSQL</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">狀態</label>
+                            <select class="form-control" id="isEnabled">
+                                <option value="true">啟用</option>
+                                <option value="false">停用</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">描述</label>
+                        <textarea class="form-control" id="description" 
+                                  placeholder="描述這個資料源的用途..."></textarea>
+                    </div>
+                    
+                    <div>
+                        <button type="button" class="btn btn-primary" onclick="saveDatasource()">
+                            💾 儲存
+                        </button>
+                        <button type="button" class="btn btn-warning" onclick="testConnection()">
+                            🔌 測試連線
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="cancelDatasourceForm()">
+                            ❌ 取消
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Tab 2: 查詢配置 -->
+        <div id="tab-query" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">🔍 查詢配置管理</h2>
+                
+                <div class="search-bar">
+                    <input type="text" class="form-control search-input" placeholder="搜尋查詢代碼或名稱..." id="querySearch">
+                    <select class="form-control" id="categoryFilter" style="max-width: 200px;">
+                        <option value="">所有分類</option>
+                        <option value="CUSTOMER">客戶</option>
+                        <option value="PORTFOLIO">投資組合</option>
+                        <option value="TRANSACTION">交易</option>
+                        <option value="REPORT">報表</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="searchQueries()">🔍 搜尋</button>
+                    <button class="btn btn-success" onclick="showAddQueryForm()">➕ 新增查詢</button>
+                </div>
+                
+                <div id="queryList" class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>查詢代碼</th>
+                                <th>查詢名稱</th>
+                                <th>分類</th>
+                                <th>資料源</th>
+                                <th>需要API Key</th>
+                                <th>狀態</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="queryTableBody">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 30px;">
+                                    <div class="spinner"></div>
+                                    <p>載入查詢配置列表中...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 新增/編輯查詢表單 -->
+            <div id="queryForm" class="card" style="display: none;">
+                <h2 class="card-title" id="queryFormTitle">➕ 新增查詢配置</h2>
+                
+                <form id="queryFormContent">
+                    <input type="hidden" id="queryId">
+                    
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="form-label">查詢代碼 * (大寫英文+底線)</label>
+                            <input type="text" class="form-control" id="queryCode" 
+                                   placeholder="例: LIST_CUSTOMERS" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">查詢名稱 *</label>
+                            <input type="text" class="form-control" id="queryName" 
+                                   placeholder="例: 查詢客戶列表" required>
+                        </div>
+                    </div>
+                    
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label class="form-label">資料源代碼 *</label>
+                            <select class="form-control" id="datasourceCodeSelect" required>
+                                <option value="">請選擇資料源</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">分類 *</label>
+                            <select class="form-control" id="category" required>
+                                <option value="CUSTOMER">客戶</option>
+                                <option value="PORTFOLIO">投資組合</option>
+                                <option value="TRANSACTION">交易</option>
+                                <option value="REPORT">報表</option>
+                                <option value="OTHER">其他</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">最大分頁大小</label>
+                            <input type="number" class="form-control" id="maxPageSize" 
+                                   value="100" min="1" max="1000">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">SQL 查詢語句 * (使用 :paramName 格式)</label>
+                        <textarea class="form-control" id="querySql" rows="8"
+                                  placeholder="SELECT * FROM customers WHERE account_status = :status" 
+                                  required></textarea>
+                        <small style="color: #6c757d;">
+                            ⚠️ 重要：參數必須使用 <strong>:paramName</strong> 格式 (JDBC 標準)，不要使用 @paramName
+                        </small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">描述</label>
+                        <textarea class="form-control" id="queryDescription" 
+                                  placeholder="描述這個查詢的用途、注意事項等..."></textarea>
+                    </div>
+                    
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label class="form-label">需要 API Key</label>
+                            <select class="form-control" id="requireApiKey">
+                                <option value="true">是</option>
+                                <option value="false">否</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">快取秒數 (0=不快取)</label>
+                            <input type="number" class="form-control" id="cacheSeconds" 
+                                   value="0" min="0">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">狀態</label>
+                            <select class="form-control" id="queryEnabled">
+                                <option value="true">啟用</option>
+                                <option value="false">停用</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <button type="button" class="btn btn-primary" onclick="saveQuery()">
+                            💾 儲存
+                        </button>
+                        <button type="button" class="btn btn-warning" onclick="validateQuerySql()">
+                            ✅ 驗證 SQL
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="cancelQueryForm()">
+                            ❌ 取消
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Tab 3: 參數管理 -->
+        <div id="tab-params" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">⚙️ 查詢參數管理</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">選擇查詢配置 *</label>
+                    <select class="form-control" id="paramQuerySelect" onchange="loadQueryParams()">
+                        <option value="">請先選擇查詢...</option>
+                    </select>
+                </div>
+                
+                <div id="paramSection" style="display: none;">
+                    <div class="alert alert-info">
+                        <strong>💡 提示：</strong>為選擇的查詢配置定義所需的參數，包括參數類型、是否必填、預設值等。
+                    </div>
+                    
+                    <button class="btn btn-success" onclick="showAddParamForm()">➕ 新增參數</button>
+                    
+                    <div id="paramList" class="param-list">
+                        <p style="text-align: center; color: #6c757d;">尚未新增任何參數</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 新增/編輯參數表單 -->
+            <div id="paramForm" class="card" style="display: none;">
+                <h2 class="card-title" id="paramFormTitle">➕ 新增查詢參數</h2>
+                
+                <form id="paramFormContent">
+                    <input type="hidden" id="paramId">
+                    <input type="hidden" id="paramQueryId">
+                    
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="form-label">參數名稱 * (對應 SQL 中的 :paramName)</label>
+                            <input type="text" class="form-control" id="paramName" 
+                                   placeholder="例: status (SQL 中為 :status)" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">參數類型 *</label>
+                            <select class="form-control" id="paramType" required>
+                                <option value="STRING">字串 (STRING)</option>
+                                <option value="INTEGER">整數 (INTEGER)</option>
+                                <option value="LONG">長整數 (LONG)</option>
+                                <option value="DECIMAL">小數 (DECIMAL)</option>
+                                <option value="DATETIME">日期時間 (DATETIME)</option>
+                                <option value="DATE">日期 (DATE)</option>
+                                <option value="BOOLEAN">布林 (BOOLEAN)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="form-label">是否必填</label>
+                            <select class="form-control" id="isRequired">
+                                <option value="false">否</option>
+                                <option value="true">是</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">預設值</label>
+                            <input type="text" class="form-control" id="defaultValue" 
+                                   placeholder="例: ACTIVE">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">驗證正則表達式 (選填)</label>
+                        <input type="text" class="form-control" id="validationRegex" 
+                               placeholder="例: ^[A-Z0-9_]+$">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">參數描述</label>
+                        <textarea class="form-control" id="paramDescription" 
+                                  placeholder="描述這個參數的用途、格式等..."></textarea>
+                    </div>
+                    
+                    <div>
+                        <button type="button" class="btn btn-primary" onclick="saveParam()">
+                            💾 儲存
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="cancelParamForm()">
+                            ❌ 取消
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Tab 4: 測試執行 -->
+        <div id="tab-test" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">🧪 測試查詢執行</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">選擇查詢配置 *</label>
+                    <select class="form-control" id="testQuerySelect" onchange="loadTestQueryDetails()">
+                        <option value="">請選擇要測試的查詢...</option>
+                    </select>
+                </div>
+                
+                <div id="testSection" style="display: none;">
+                    <div class="alert alert-info">
+                        <strong>📝 查詢資訊：</strong>
+                        <div id="testQueryInfo" style="margin-top: 10px;"></div>
+                    </div>
+                    
+                    <div id="testParamsSection">
+                        <h3 style="margin-bottom: 15px;">參數輸入</h3>
+                        <div id="testParams" class="grid-2"></div>
+                    </div>
+                    
+                    <div class="grid-3" style="margin-top: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">頁碼</label>
+                            <input type="number" class="form-control" id="testPageNum" value="1" min="1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">每頁筆數</label>
+                            <input type="number" class="form-control" id="testPageSize" value="10" min="1" max="100">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">API Key (選填)</label>
+                            <input type="text" class="form-control" id="testApiKey" 
+                                   placeholder="api_live_1234567890abcdef">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="executeTestQuery()">
+                            🚀 執行查詢
+                        </button>
+                        <button class="btn btn-warning" onclick="generateCurlCommand()">
+                            📋 生成 cURL 命令
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearTestResults()">
+                            🗑️ 清除結果
+                        </button>
+                    </div>
+                    
+                    <div id="curlCommand" class="code-preview" style="display: none;">
+                        <strong>cURL 命令：</strong>
+                        <pre id="curlCommandText" style="margin-top: 10px; color: #68d391;"></pre>
+                    </div>
+                    
+                    <div id="testResults" style="display: none; margin-top: 20px;">
+                        <h3>執行結果</h3>
+                        <div id="testResultsContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== 全域變數 =====
+        const API_BASE_URL = window.location.origin;
+        let currentDatasources = [];
+        let currentQueries = [];
+        let currentParams = [];
+        let selectedQueryForParams = null;
+        let selectedQueryForTest = null;
+
+        // ===== 頁籤切換 =====
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'datasource') {
+                loadDatasources();
+            } else if (tabName === 'query') {
+                loadQueries();
+            } else if (tabName === 'params') {
+                loadQuerySelectForParams();
+            } else if (tabName === 'test') {
+                loadQuerySelectForTest();
+            }
+        }
+
+        // ===== 資料源管理功能 =====
+        async function loadDatasources() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/datasource/list`);
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    currentDatasources = result.data;
+                    renderDatasourceTable(currentDatasources);
+                } else {
+                    showAlert('error', '載入失敗：' + result.message);
+                }
+            } catch (error) {
+                showAlert('error', '載入資料源失敗：' + error.message);
+                document.getElementById('datasourceTableBody').innerHTML = 
+                    '<tr><td colspan="7" style="text-align: center; color: red;">載入失敗</td></tr>';
+            }
+        }
+
+        function renderDatasourceTable(datasources) {
+            const tbody = document.getElementById('datasourceTableBody');
+            
+            if (!datasources || datasources.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">尚無資料源配置</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = datasources.map(ds => `
+                <tr>
+                    <td><strong>${ds.datasourceCode}</strong></td>
+                    <td>${ds.datasourceName}</td>
+                    <td><code style="font-size: 0.85em;">${ds.jdbcUrl}</code></td>
+                    <td>${ds.username}</td>
+                    <td>
+                        <span class="badge ${ds.isEnabled ? 'badge-success' : 'badge-danger'}">
+                            ${ds.isEnabled ? '啟用' : '停用'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="testDatasourceConnection('${ds.datasourceCode}')">
+                            🔌 測試
+                        </button>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-primary" onclick="editDatasource(${ds.datasourceId})">
+                                ✏️ 編輯
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteDatasource(${ds.datasourceId})">
+                                🗑️ 刪除
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function showAddDatasourceForm() {
+            document.getElementById('datasourceForm').style.display = 'block';
+            document.getElementById('datasourceFormTitle').textContent = '➕ 新增資料源';
+            document.getElementById('datasourceFormContent').reset();
+            document.getElementById('datasourceId').value = '';
+            document.getElementById('datasourceForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function cancelDatasourceForm() {
+            document.getElementById('datasourceForm').style.display = 'none';
+            document.getElementById('datasourceFormContent').reset();
+        }
+
+        async function saveDatasource() {
+            const id = document.getElementById('datasourceId').value;
+            const data = {
+                datasourceCode: document.getElementById('datasourceCode').value,
+                datasourceName: document.getElementById('datasourceName').value,
+                jdbcUrl: document.getElementById('jdbcUrl').value,
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                driverClassName: document.getElementById('driverClassName').value,
+                isEnabled: document.getElementById('isEnabled').value === 'true',
+                description: document.getElementById('description').value
+            };
+
+            try {
+                const url = id ? `${API_BASE_URL}/api/datasource/update/${id}` : `${API_BASE_URL}/api/datasource/create`;
+                const method = id ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    showAlert('success', id ? '資料源更新成功！' : '資料源建立成功！');
+                    cancelDatasourceForm();
+                    loadDatasources();
+                } else {
+                    showAlert('error', '儲存失敗：' + result.message);
+                }
+            } catch (error) {
+                showAlert('error', '儲存失敗：' + error.message);
+            }
+        }
+
+        async function testConnection() {
+            const data = {
+                jdbcUrl: document.getElementById('jdbcUrl').value,
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                driverClassName: document.getElementById('driverClassName').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/datasource/test-connection`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.code === 200 && result.data === true) {
+                    showAlert('success', '✅ 連線測試成功！資料庫連線正常。');
+                } else {
+                    showAlert('error', '❌ 連線測試失敗：' + (result.message || '無法連接資料庫'));
+                }
+            } catch (error) {
+                showAlert('error', '❌ 連線測試失敗：' + error.message);
+            }
+        }
+
+        async function testDatasourceConnection(datasourceCode) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/datasource/test/${datasourceCode}`);
+                const result = await response.json();
+                
+                if (result.code === 200 && result.data === true) {
+                    showAlert('success', `✅ 資料源 [${datasourceCode}] 連線測試成功！`);
+                } else {
+                    showAlert('error', `❌ 資料源 [${datasourceCode}] 連線測試失敗`);
+                }
+            } catch (error) {
+                showAlert('error', '測試失敗：' + error.message);
+            }
+        }
+
+        async function deleteDatasource(id) {
+            if (!confirm('確定要刪除此資料源嗎？此操作無法復原。')) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/datasource/delete/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    showAlert('success', '資料源刪除成功！');
+                    loadDatasources();
+                } else {
+                    showAlert('error', '刪除失敗：' + result.message);
+                }
+            } catch (error) {
+                showAlert('error', '刪除失敗：' + error.message);
+            }
+        }
+
+        function searchDatasources() {
+            const searchTerm = document.getElementById('datasourceSearch').value.toLowerCase();
+            const filtered = currentDatasources.filter(ds => 
+                ds.datasourceCode.toLowerCase().includes(searchTerm) ||
+                ds.datasourceName.toLowerCase().includes(searchTerm)
+            );
+            renderDatasourceTable(filtered);
+        }
+
+        // ===== 查詢配置管理功能 =====
+        async function loadQueries() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/query/available`);
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    currentQueries = result.data;
+                    renderQueryTable(currentQueries);
+                    await loadDatasourceSelect();
+                } else {
+                    showAlert('error', '載入失敗：' + result.message);
+                }
+            } catch (error) {
+                showAlert('error', '載入查詢配置失敗：' + error.message);
+                document.getElementById('queryTableBody').innerHTML = 
+                    '<tr><td colspan="7" style="text-align: center; color: red;">載入失敗</td></tr>';
+            }
+        }
+
+        function renderQueryTable(queries) {
+            const tbody = document.getElementById('queryTableBody');
+            
+            if (!queries || queries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">尚無查詢配置</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = queries.map(q => `
+                <tr>
+                    <td><strong>${q.queryCode}</strong></td>
+                    <td>${q.queryName}</td>
+                    <td><span class="badge badge-warning">${q.category}</span></td>
+                    <td>${q.datasourceCode}</td>
+                    <td>
+                        <span class="badge ${q.requireApiKey ? 'badge-danger' : 'badge-success'}">
+                            ${q.requireApiKey ? '需要' : '不需要'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge badge-success">啟用</span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-primary" onclick="viewQueryDetail('${q.queryCode}')">
+                                👁️ 檢視
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="editQuery('${q.queryCode}')">
+                                ✏️ 編輯
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadDatasourceSelect() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/datasource/list`);
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    const select = document.getElementById('datasourceCodeSelect');
+                    select.innerHTML = '<option value="">請選擇資料源</option>' +
+                        result.data.filter(ds => ds.isEnabled).map(ds => 
+                            `<option value="${ds.datasourceCode}">${ds.datasourceName} (${ds.datasourceCode})</option>`
+                        ).join('');
+                }
+            } catch (error) {
+                console.error('載入資料源選單失敗:', error);
+            }
+        }
+
+        function showAddQueryForm() {
+            document.getElementById('queryForm').style.display = 'block';
+            document.getElementById('queryFormTitle').textContent = '➕ 新增查詢配置';
+            document.getElementById('queryFormContent').reset();
+            document.getElementById('queryId').value = '';
+            document.getElementById('queryForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function cancelQueryForm() {
+            document.getElementById('queryForm').style.display = 'none';
+            document.getElementById('queryFormContent').reset();
+        }
+
+        async function saveQuery() {
+            const data = {
+                queryCode: document.getElementById('queryCode').value,
+                queryName: document.getElementById('queryName').value,
+                datasourceCode: document.getElementById('datasourceCodeSelect').value,
+                querySql: document.getElementById('querySql').value,
+                description: document.getElementById('queryDescription').value,
+                category: document.getElementById('category').value,
+                isEnabled: document.getElementById('queryEnabled').value === 'true',
+                requireApiKey: document.getElementById('requireApiKey').value === 'true',
+                maxPageSize: parseInt(document.getElementById('maxPageSize').value),
+                cacheSeconds: parseInt(document.getElementById('cacheSeconds').value)
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/query/config/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    showAlert('success', '查詢配置建立成功！');
+                    cancelQueryForm();
+                    loadQueries();
+                } else {
+                    showAlert('error', '儲存失敗：' + result.message);
+                }
+            } catch (error) {
+                showAlert('error', '儲存失敗：' + error.message);
+            }
+        }
+
+        function validateQuerySql() {
+            const sql = document.getElementById('querySql').value;
+            
+            const atParamPattern = /@(\w+)/g;
+            const colonParamPattern = /:(\w+)/g;
+            
+            const atParams = sql.match(atParamPattern);
+            const colonParams = sql.match(colonParamPattern);
+            
+            if (atParams && atParams.length > 0) {
+                showAlert('error', `❌ SQL 驗證失敗！發現錯誤的參數格式：${atParams.join(', ')}<br>
+                    請改用 JDBC 標準格式 <strong>:paramName</strong> (冒號開頭)，不要使用 @paramName`);
+                return;
+            }
+            
+            if (colonParams && colonParams.length > 0) {
+                showAlert('success', `✅ SQL 驗證通過！偵測到參數：${colonParams.join(', ')}<br>
+                    請記得在「參數管理」頁籤中為這些參數建立定義。`);
+            } else {
+                showAlert('info', '⚠️ 此 SQL 未使用任何參數。如果需要動態查詢，請加入 :paramName 格式的參數。');
+            }
+        }
+
+        async function viewQueryDetail(queryCode) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/query/config/${queryCode}`);
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    const config = result.data;
+                    const paramsList = config.parameters.map(p => 
+                        `<li><strong>${p.paramName}</strong> (${p.paramType})${p.isRequired ? ' <span class="badge badge-danger">必填</span>' : ''}</li>`
+                    ).join('');
+                    
+                    showAlert('info', `
+                        <h3>${config.queryName}</h3>
+                        <p><strong>查詢代碼：</strong>${config.queryCode}</p>
+                        <p><strong>分類：</strong>${config.category}</p>
+                        <p><strong>資料源：</strong>${config.datasourceCode}</p>
+                        <p><strong>描述：</strong>${config.description || '無'}</p>
+                        <p><strong>參數列表：</strong></p>
+                        <ul>${paramsList || '<li>無參數</li>'}</ul>
+                        <p><strong>SQL 語句：</strong></p>
+                        <pre style="background: #2d3748; color: #68d391; padding: 10px; border-radius: 6px;">${config.querySql}</pre>
+                    `);
+                }
+            } catch (error) {
+                showAlert('error', '查詢詳情載入失敗：' + error.message);
+            }
+        }
+
+        function searchQueries() {
+            const searchTerm = document.getElementById('querySearch').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            
+            let filtered = currentQueries.filter(q => 
+                q.queryCode.toLowerCase().includes(searchTerm) ||
+                q.queryName.toLowerCase().includes(searchTerm)
+            );
+            
+            if (category) {
+                filtered = filtered.filter(q => q.category === category);
+            }
+            
+            renderQueryTable(filtered);
+        }
+
+        // ===== 參數管理功能 =====
+        async function loadQuerySelectForParams() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/query/available`);
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    const select = document.getElementById('paramQuerySelect');
+                    select.innerHTML = '<option value="">請先選擇查詢...</option>' +
+                        result.data.map(q => 
+                            `<option value="${q.queryCode}">${q.queryName} (${q.queryCode})</option>`
+                        ).join('');
+                }
+            } catch (error) {
+                showAlert('error', '載入查詢列表失敗：' + error.message);
+            }
+        }
+
+        async function loadQueryParams() {
+            const queryCode = document.getElementById('paramQuerySelect').value;
+            
+            if (!queryCode) {
+                document.getElementById('paramSection').style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/query/config/${queryCode}`);
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    selectedQueryForParams = result.data;
+                    document.getElementById('paramSection').style.display = 'block';
+                    renderParamList(result.data.parameters);
+                }
+            } catch (error) {
+                showAlert('error', '載入參數失敗：' + error.message);
+            }
+        }
+
+        function renderParamList(params) {
+            const list = document.getElementById('paramList');
+            
+            if (!params || params.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #6c757d;">尚未新增任何參數</p>';
+                return;
+            }
+            
+            list.innerHTML = params.map(p => `
+                <div class="param-item">
+                    <div>
+                        <strong>${p.paramName}</strong> 
+                        <span class="badge badge-warning">${p.paramType}</span>
+                        ${p.isRequired ? '<span class="badge badge-danger">必填</span>' : ''}
+                        ${p.defaultValue ? `<br><small>預設值: ${p.defaultValue}</small>` : ''}
+                        ${p.description ? `<br><small>${p.description}</small>` : ''}
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-sm btn-primary" onclick="editParam(${p.paramId})">✏️</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteParam(${p.paramId})">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showAddParamForm() {
+            if (!selectedQueryForParams) {
+                showAlert('error', '請先選擇查詢配置！');
+                return;
+            }
+            
+            document.getElementById('paramForm').style.display = 'block';
+            document.getElementById('paramFormTitle').textContent = '➕ 新增查詢參數';
+            document.getElementById('paramFormContent').reset();
+            document.getElementById('paramId').value = '';
+            document.getElementById('paramQueryId').value = selectedQueryForParams.queryId;
+            document.getElementById('paramForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function cancelParamForm() {
+            document.getElementById('paramForm').style.display = 'none';
+            document.getElementById('paramFormContent').reset();
+        }
+
+        async function saveParam() {
+            const data = {
+                queryId: document.getElementById('paramQueryId').value,
+                paramName: document.getElementById('paramName').value,
+                paramType: document.getElementById('paramType').value,
+                isRequired: document.getElementById('isRequired').value === 'true',
+                defaultValue: document.getElementById('defaultValue').value || null,
+                validationRegex: document.getElementById('validationRegex').value || null,
+                description: document.getElementById('paramDescription').value || null
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/query/param/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    showAlert('success', '參數建立成功！');
+                    cancelParamForm();
+                    loadQueryParams();
+                } else {
+                    showAlert('error', '儲存失敗：' + result.message);
+                }
+            } catch (error) {
+                showAlert('error', '儲存失敗：' + error.message);
+            }
+        }
+
+        async function deleteParam(paramId) {
+            if (!confirm('確定要刪除此參數嗎？')) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/query/param/delete/${paramId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    showAlert('success', '參數刪除成功！');
+                    loadQueryParams();
+                } else {
+                    showAlert('error', '刪除失敗：' + result.message);
+                }
+            } catch (error) {
+                showAlert('error', '刪除失敗：' + error.message);
+            }
+        }
+
+        // ===== 測試執行功能 =====
+        async function loadQuerySelectForTest() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/query/available`);
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    const select = document.getElementById('testQuerySelect');
+                    select.innerHTML = '<option value="">請選擇要測試的查詢...</option>' +
+                        result.data.map(q => 
+                            `<option value="${q.queryCode}">${q.queryName} (${q.queryCode})</option>`
+                        ).join('');
+                }
+            } catch (error) {
+                showAlert('error', '載入查詢列表失敗：' + error.message);
+            }
+        }
+
+        async function loadTestQueryDetails() {
+            const queryCode = document.getElementById('testQuerySelect').value;
+            
+            if (!queryCode) {
+                document.getElementById('testSection').style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/query/config/${queryCode}`);
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    selectedQueryForTest = result.data;
+                    document.getElementById('testSection').style.display = 'block';
+                    
+                    document.getElementById('testQueryInfo').innerHTML = `
+                        <strong>查詢名稱：</strong>${result.data.queryName}<br>
+                        <strong>分類：</strong>${result.data.category}<br>
+                        <strong>資料源：</strong>${result.data.datasourceCode}<br>
+                        <strong>需要 API Key：</strong>${result.data.requireApiKey ? '是' : '否'}
+                    `;
+                    
+                    renderTestParams(result.data.parameters);
+                }
+            } catch (error) {
+                showAlert('error', '載入查詢詳情失敗：' + error.message);
+            }
+        }
+
+        function renderTestParams(params) {
+            const container = document.getElementById('testParams');
+            
+            if (!params || params.length === 0) {
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #6c757d;">此查詢無需參數</p>';
+                return;
+            }
+            
+            container.innerHTML = params.map(p => `
+                <div class="form-group">
+                    <label class="form-label">
+                        ${p.paramName} (${p.paramType})
+                        ${p.isRequired ? '<span class="badge badge-danger">必填</span>' : ''}
+                    </label>
+                    <input type="text" 
+                           class="form-control test-param" 
+                           data-param-name="${p.paramName}"
+                           placeholder="${p.defaultValue || '請輸入 ' + p.paramName}"
+                           value="${p.defaultValue || ''}"
+                           ${p.isRequired ? 'required' : ''}>
+                    ${p.description ? `<small style="color: #6c757d;">${p.description}</small>` : ''}
+                </div>
+            `).join('');
+        }
+
+        async function executeTestQuery() {
+            if (!selectedQueryForTest) {
+                showAlert('error', '請先選擇查詢配置！');
+                return;
+            }
+
+            const params = {};
+            document.querySelectorAll('.test-param').forEach(input => {
+                const paramName = input.dataset.paramName;
+                const value = input.value.trim();
+                if (value) {
+                    params[paramName] = value;
+                }
+            });
+
+            const requestData = {
+                params: params,
+                pageNum: parseInt(document.getElementById('testPageNum').value),
+                pageSize: parseInt(document.getElementById('testPageSize').value)
+            };
+
+            const apiKey = document.getElementById('testApiKey').value.trim();
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            if (apiKey) {
+                headers['X-API-Key'] = apiKey;
+            }
+
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/api/query/execute/${selectedQueryForTest.queryCode}`,
+                    {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify(requestData)
+                    }
+                );
+                
+                const result = await response.json();
+                
+                document.getElementById('testResults').style.display = 'block';
+                const resultsContent = document.getElementById('testResultsContent');
+                
+                if (result.code === 200) {
+                    resultsContent.innerHTML = `
+                        <div class="alert alert-success">
+                            ✅ 查詢執行成功！
+                        </div>
+                        <div class="code-preview">
+                            ${JSON.stringify(result, null, 2)}
+                        </div>
+                    `;
+                } else {
+                    resultsContent.innerHTML = `
+                        <div class="alert alert-error">
+                            ❌ 查詢執行失敗：${result.message}
+                        </div>
+                        <div class="code-preview">
+                            ${JSON.stringify(result, null, 2)}
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('testResults').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                showAlert('error', '執行失敗：' + error.message);
+            }
+        }
+
+        function generateCurlCommand() {
+            if (!selectedQueryForTest) {
+                showAlert('error', '請先選擇查詢配置！');
+                return;
+            }
+
+            const params = {};
+            document.querySelectorAll('.test-param').forEach(input => {
+                const paramName = input.dataset.paramName;
+                const value = input.value.trim();
+                if (value) {
+                    params[paramName] = value;
+                }
+            });
+
+            const requestData = {
+                params: params,
+                pageNum: parseInt(document.getElementById('testPageNum').value),
+                pageSize: parseInt(document.getElementById('testPageSize').value)
+            };
+
+            const apiKey = document.getElementById('testApiKey').value.trim();
+            let curlCmd = `curl -X POST "${API_BASE_URL}/api/query/execute/${selectedQueryForTest.queryCode}" \\\n`;
+            
+            if (apiKey) {
+                curlCmd += `  -H "X-API-Key: ${apiKey}" \\\n`;
+            }
+            
+            curlCmd += `  -H "Content-Type: application/json" \\\n`;
+            curlCmd += `  -d '${JSON.stringify(requestData, null, 2)}'`;
+
+            document.getElementById('curlCommand').style.display = 'block';
+            document.getElementById('curlCommandText').textContent = curlCmd;
+            document.getElementById('curlCommand').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function clearTestResults() {
+            document.getElementById('testResults').style.display = 'none';
+            document.getElementById('curlCommand').style.display = 'none';
+            document.getElementById('testResultsContent').innerHTML = '';
+            document.getElementById('curlCommandText').textContent = '';
+        }
+
+        // ===== 通用工具函數 =====
+        function showAlert(type, message) {
+            const alertClass = type === 'success' ? 'alert-success' : 
+                              type === 'error' ? 'alert-error' : 'alert-info';
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert ${alertClass}`;
+            alertDiv.innerHTML = message;
+            alertDiv.style.position = 'fixed';
+            alertDiv.style.top = '20px';
+            alertDiv.style.right = '20px';
+            alertDiv.style.zIndex = '10000';
+            alertDiv.style.maxWidth = '500px';
+            alertDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.style.transition = 'opacity 0.5s';
+                alertDiv.style.opacity = '0';
+                setTimeout(() => alertDiv.remove(), 500);
+            }, 5000);
+        }
+
+        // ===== 頁面初始化 =====
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDatasources();
+            showAlert('info', '👋 歡迎使用動態查詢管理介面！請先配置資料源，再建立查詢配置。');
+        });
+    </script>
+</body>
+</html>
